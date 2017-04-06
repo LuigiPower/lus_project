@@ -145,7 +145,6 @@ for lemma in lemmalist:
     for tag in taglist:
         for concept in conceptlist:
             lemmatagconcept = "%s %s %s" % (lemma, tag, concept)
-            weight = 100 #TODO what to do if I don't have the probability?
             if lemmatagconcept in weights_lemmatagconcept:
                 weight = weights_lemmatagconcept[lemmatagconcept]
             else:
