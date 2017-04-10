@@ -14,6 +14,9 @@ lemmas = {} # TODO Change the values of this dictionary to a list of lemmas: a w
 lemma_taglist = {}
 counts_lemmatag = {}
 
+counts_wordlemma = {}
+counts_lemma = {}
+
 wordlist = []
 lemmalist = []
 taglist = []
@@ -38,8 +41,23 @@ with open(trainfeats, 'r') as f:
             if lemma not in wordlist:
                 wordlist.append(lemma)
 
+            wordlemma = "%s %s" % (word, lemma)
             lemmatag = "%s %s" % (lemma, tag)
-            lemmas[word] = lemma
+            if wordlemma not in counts_wordlemma:
+                counts_wordlemma[wordlemma] = 1
+            else:
+                counts_wordlemma[wordlemma] += 1
+
+            if lemma not in counts_lemma:
+                counts_lemma[lemma] = 1
+            else:
+                counts_lemma[lemma] += 1
+
+            if word not in lemmas:
+                lemmas[word] = []
+
+            if lemma not in lemmas[word]:
+                lemmas[word].append(lemma)
 
             if lemmatag not in counts_lemmatag:
                 counts_lemmatag[lemmatag] = 1
@@ -67,25 +85,27 @@ with open(train, 'r') as f:
                 #print("Adding concept %s" % concept)
                 conceptlist.append(concept)
 
-            lemma = word
+            possiblelemmas = [word]
             if word in lemmas:
-                lemma = lemmas[word]
+                possiblelemmas = lemmas[word]
             else:
-                #print("Word %s not in lemmas (feats dataset is wrong?) Ignoring...")
+                print("Word %s not in lemmas (feats dataset is wrong?) Ignoring...")
                 continue
 
-            for tag in lemma_taglist[lemma]:
-                lemmatagconcept = "%s %s %s" % (lemma, tag, concept)
-                tagconcept = "%s %s" % (tag, concept)
-                if lemmatagconcept not in counts_lemmatagconcept:
-                    counts_lemmatagconcept[lemmatagconcept] = 1
-                else:
-                    counts_lemmatagconcept[lemmatagconcept] += 1
+            #print("Word %s has lemmalist %s" % (word, possiblelemmas))
+            for lemma in possiblelemmas:
+                for tag in lemma_taglist[lemma]:
+                    lemmatagconcept = "%s %s %s" % (lemma, tag, concept)
+                    tagconcept = "%s %s" % (tag, concept)
+                    if lemmatagconcept not in counts_lemmatagconcept:
+                        counts_lemmatagconcept[lemmatagconcept] = 1
+                    else:
+                        counts_lemmatagconcept[lemmatagconcept] += 1
 
-                if tagconcept not in counts_tagconcept:
-                    counts_tagconcept[tagconcept] = 1
-                else:
-                    counts_tagconcept[tagconcept] += 1
+                    if tagconcept not in counts_tagconcept:
+                        counts_tagconcept[tagconcept] = 1
+                    else:
+                        counts_tagconcept[tagconcept] += 1
 
 #print(counts_lemmatag)
 #print(counts_tagconcept)
@@ -158,10 +178,26 @@ for concept in conceptlist:
 
 automata.append("0 0")
 
+
+weights_wordlemma = {}
+
+for k, v in counts_wordlemma.items():
+    wordlemma = k.split()
+    word = wordlemma[0]
+    lemma = wordlemma[1]
+    c1 = counts_wordlemma[k]
+    c2 = counts_lemma[lemma]
+    prob = (c1/c2)
+    neglogprob = -math.log(prob)
+    weights_wordlemma[k] = neglogprob
+
 wordtolemmaautomata = [];
 
 for k, v in lemmas.items():
-    wordtolemmaautomata.append("0 0 %s %s 0" % (k, v))
+    word = k
+    for lemma in v:
+        wordlemma = "%s %s" % (word, lemma)
+        wordtolemmaautomata.append("0 0 %s %s %s" % (word, lemma, weights_wordlemma[wordlemma]))
 
 for lemma in lemmalist:
     if lemma not in lemmas: #checks key (which is a word)

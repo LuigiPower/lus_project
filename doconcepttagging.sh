@@ -3,7 +3,6 @@
 INPUT=$1
 LEX=$2
 TAGGER=$3
-OUT=$4
 
 TEMP="tempstring"
 
@@ -16,5 +15,5 @@ paste "P1/data/NLSPARQL.test.data" <(
         #
         ./domodelcompose.sh ${TEMP}1.fst $TAGGER $LEX | cut -d$'\t' -f 4
     done < $INPUT
-) > $OUT
+) > $TAGGER.output.txt
 
