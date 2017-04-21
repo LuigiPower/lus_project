@@ -105,18 +105,20 @@ To do this the training data was converted from word-per-row to a concept senten
 It can be observed that using a language model trained on bigrams achieves better performance than one trained on trigrams, which can be explained by looking at the training and test sets.
 % TODO need to check this A few concept tags only appear as bigrams in the training corpus, while they appear only as trigrams in the test one.
 
-\subsection{Witten bell, 3-grams}
 \begin{verbatim}
+Smoothing method: witten_bell
+Order: 3-grams
+Cut-Off: none
 accuracy:  92.62%
 precision:  76.58%
 recall:  74.61%
 FB1:  75.58
 \end{verbatim}
 
-\subsection{Witten bell, 2-grams}
 \begin{verbatim}
 Smoothing method: witten_bell
 Order: 2-grams
+Cut-Off: none
 accuracy:  92.68%
 precision:  78.51%
 recall:  74.34%
@@ -133,6 +135,7 @@ By composing the result with the concept model it is shown to be even worse than
 \begin{verbatim}
 Smoothing method: witten_bell
 Order: 2-grams
+Cut-Off: none
 accuracy:  72.81%
 precision:  27.35%
 recall:   6.14%
@@ -147,6 +150,7 @@ The second transducer takes into consideration the pos-tags in the calculation o
 \begin{verbatim}
 Smoothing method: witten_bell
 Order: 3-grams
+Cut-Off: none
 accuracy:  92.34%
 precision:  76.06%
 recall:  73.97%
@@ -159,10 +163,11 @@ The performance of this method is comparable to the version without extra featur
 \section{Solution with generalization}
 As the inclusion of the extra features does not seem to improve performance this method does not use them.
 
-The idea was to create two transducers, one that transforms words into a generalization (a word class), while the second transduces from a word class to a concept. The method was implemented by pre-processing the training set, adding a "word class" column created as a derivative of the concept tag. Because of this, including the fact that the only acceptable generalization does nothing more than remove the IOB part of the tags, the performance is lower than the standard method:
+The idea was to create two transducers, one that transforms words into a generalization (a word class), while the second transduces from a word class to a concept. The method was implemented by pre-processing the training set, adding a "word class" column created as a derivative of the concept tag. Because of this, including the fact that the only generalization that provides a decent score does nothing more than remove the IOB part of the tags, the performance is lower than the standard method:
 \begin{verbatim}
 Smoothing method: witten_bell
 Order: 3-grams
+Cut-Off: none
 accuracy:  88.70%
 precision:  61.42%
 recall:  61.14%
@@ -171,65 +176,77 @@ FB1:  61.28
 
 \section{Using frequency cut-off}
 
-%Thoughts and F1-Score
+Frequency cut-off can be applied to all the previous solutions, but it does nothing to improve the performance.
+In fact the resulting concept tagger achieves slightly lower scores when used with a cut-off of 1 (removing words that appear only 1 time in the training corpus):
+\begin{verbatim}
+Smoothing method: witten_bell
+Order: 2-grams
+Cut-Off: 1
+accuracy:  91.74%
+precision:  77.95%
+recall:  70.30%
+FB1:  73.93
+\end{verbatim}
 
-\section{Conclusion}
+F1 Score of 73.93, almost 2 points lower than the same solution used without cut-off.
+The cut-off does remove a lot of the words that are written incorrectly such as "accumalate" and specific movie related terms such as "Dory", which may be desirable when dealing with larger amounts of data.
+
+\section{Pre-processing the training set}
+
+Having the "O" Concept tag assigned to most of the words in the training corpus meant that the concept model would learn that the O tag is very likely in any part of the sentence.
+To try and solve this problem, a pre-processing of the training set is done by replacing every \verb|O| tag into a \verb|O-<word> tag|, effectively increasing the total number of concept tags by the number of words.
+By doing so, the concept model yields more information regarding the other tags, which are lower in number, and it is possible to achieve a significant improvement on the F1-Score. The following scores have been obtained by using the \textit{no extra features} solution described precedently with the pre-processed training corpus:
+
+\begin{verbatim}
+Smoothing method: witten_bell
+Order: 3-grams
+Cut-Off: none
+accuracy:  93.72%
+precision:  80.04%
+recall:  82.68%
+FB1:  81.33
+\end{verbatim}
+
+It is interesting to note that using 2-grams with the same smoothing method degrades performance (as opposed to the solution without the pre-processing).
+
+Cut-Off deteriorates performance, so it is still kept at 0.
+
+\begin{verbatim}
+Smoothing method: witten_bell
+Order: 2-grams
+Cut-Off: none
+accuracy:  93.13%
+precision:  78.35%
+recall:  80.29%
+FB1:  79.31
+\end{verbatim}
+
+The best possible score is obtained by exaggerating on the order of the n-grams at learning time of the concept model(and thus increasing the model's complexity):
+
+\begin{verbatim}
+Smoothing method: kneser_ney
+Order: 9-grams
+Cut-Off: none
+accuracy:  94.39%
+precision:  82.38%
+recall:  83.13%
+FB1:  82.76
+\end{verbatim}
+
+
+\section{Conclusions}
+The value to be used for the learning parameters depends on the distribution of the data we are using for the learning itself. Just increasing the order of the n-grams used to learn the language model can hurt performance instead of improving it. An example of this is the performance achieved using 2-grams and the witten bell smoothing method, which is higher than the same method used with 3-grams.
+
+Extra features don't improve the concept tagger's score as we would need those features to be available at test time to improve performance. Having only the words themselves at test time means that every single extra feature we want to use to guess the concept tag would have to be estimated from the word itself, increasing the possibility of error.
+
+Minimum frequency cut-off seems to degrade performance for every proposed solution, even though it removes words spelled wrong and some words specific to certain movies.
+
+Finally, the biggest improvement to performance was achieved simply by manipulating the training data in a very specific manner. The analysis of the data used for training and testing is essential to reach the desired accuracy.
 
 
 
-\subsection{Sections}
 
-If you are using the provided \LaTeX{} and Bib\TeX{} style files, you
-can use the command \verb|\citet| (cite in text)
-to get ``author (year)'' citations.
-
-If the Bib\TeX{} file contains DOI fields, the paper
-title in the references section will appear as a hyperlink
-to the DOI, using the hyperref \LaTeX{} package.
-To disable the hyperref package, load the style file
-with the \verb|nohyperref| option:
-\verb|\usepackage[nohyperref]{acl2017}|
-
-As examples, we cite \cite{P16-1001} to show you how papers with a DOI
-will appear in the bibliography.  We cite \cite{C14-1001} to show how
-papers without a DOI but with an ACL Anthology Identifier will appear
-in the bibliography.  
-
-As reviewing will be double-blind, the submitted version of the papers
-should not include the authors' names and affiliations. Furthermore,
-self-references that reveal the author's identity, {\em e.g.},
-\begin{quote}
-``We previously showed \cite{Gusfield:97} ...''  
-\end{quote}
-should be avoided. Instead, use citations such as 
-\begin{quote}
-``\citeauthor{Gusfield:97} \shortcite{Gusfield:97}
-previously showed ... ''
-\end{quote}
-
-\textbf{Please do not use anonymous citations} and do not include
-acknowledgements when submitting your papers. Papers that do not
-conform to these requirements may be rejected without review.
-
-\textbf{References}: Gather the full set of references together under
-the heading {\bf References}; place the section before any Appendices,
-unless they contain references. Arrange the references alphabetically
-by first author, rather than by order of occurrence in the text.
-Provide as complete a citation as possible, using a consistent format,
-such as the one for {\em Computational Linguistics\/} or the one in the 
-{\em Publication Manual of the American 
-Psychological Association\/}~\cite{APA:83}.  Use of full names for
-authors rather than initials is preferred.  A list of abbreviations
-for common computer science journals can be found in the ACM 
-{\em Computing Reviews\/}~\cite{ACM:83}.
-
-The \LaTeX{} and Bib\TeX{} style files provided roughly fit the
-American Psychological Association format, allowing regular citations, 
-short citations and multiple citations as described above.
-
-{\bf Appendices}: Appendices, if any, directly follow the text and the
-references (but see above).  Letter them in sequence and provide an
-informative title: {\bf Appendix A. Title of Appendix}.
+\cite{P16-1001}
 
 
 
@@ -240,37 +257,5 @@ informative title: {\bf Appendix A. Title of Appendix}.
 \bibliographystyle{acl_natbib}
 
 \appendix
-
-\section{Supplemental Material}
-\label{sec:supplemental}
-ACL 2017 also encourages the submission of supplementary material
-to report preprocessing decisions, model parameters, and other details
-necessary for the replication of the experiments reported in the 
-paper. Seemingly small preprocessing decisions can sometimes make
-a large difference in performance, so it is crucial to record such
-decisions to precisely characterize state-of-the-art methods.
-
-Nonetheless, supplementary material should be supplementary (rather
-than central) to the paper. {\bf Submissions that misuse the supplementary 
-material may be rejected without review.}
-Essentially, supplementary material may include explanations or details
-of proofs or derivations that do not fit into the paper, lists of
-features or feature templates, sample inputs and outputs for a system,
-pseudo-code or source code, and data. (Source code and data should
-be separate uploads, rather than part of the paper).
-
-The paper should not rely on the supplementary material: while the paper
-may refer to and cite the supplementary material and the supplementary material will be available to the
-reviewers, they will not be asked to review the
-supplementary material.
-
-Appendices ({\em i.e.} supplementary material in the form of proofs, tables,
-or pseudo-code) should come after the references, as shown here. Use
-\verb|\appendix| before any appendix section to switch the section
-numbering over to letters.
-
-\section{Multiple Appendices}
-\dots can be gotten by using more than one section. We hope you won't
-need that.
 
 \end{document}
