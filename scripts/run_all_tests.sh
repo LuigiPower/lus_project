@@ -10,9 +10,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # 2step 2stepgivenc 3step gen_nofeats
 for METHOD in witten_bell absolute kneser_ney katz presmoothed unsmoothed
 do
-    for ORDER in 2 3 4 5
+    for ORDER in 1
     do
-        for CUTOFF in 0 1
+        for CUTOFF in 0
         do
             for TAGGER in nofeats
             do

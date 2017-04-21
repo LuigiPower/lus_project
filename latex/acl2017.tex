@@ -42,19 +42,21 @@
 \begin{abstract}
   This work provides a concept tagging tool for queries related to movies, such as "who is the director of thor".
   The final version of the script enables tweaking of various learning parameters to better evaluate which setting is the best for the situation.
-  % TODO Write which version achieves the best F1 score
+  A number of possible solutions are discussed and provided in the tool itself to show the steps taken to reach the highest scoring version that uses pre-processing of the training data. It is determined that accurate analysis of both the training and test set is required to increase accuracy in specific scenarios.
 \end{abstract}
 
 \section{Introduction}
 
+What is the best way to estimate the concept expressed by words in a sentence using Weighted Finite State Transducers?
+An incremental approach is taken into consideration, starting from the simplest of methods (a single transducer), adding elements that could improve performance in some way at each step. Doing so results in three main branches to explore: increase the number of transducers to better include the additional features, increase the complexity of the learned concept model and the manipulation of the test set.
+
 \section{Data set analysis}
 
+First and foremost, an analysis of the dataset is required to implement any of the possible solutions.
 % Dataset explanation, similar to README
 The dataset is subdivided into a training set and a test set.
 These sets are in a word per line format, with the sentences being separated by an empty line.
 Multiple columns represent the features of the specific word (such as part-of-speech tag and the lemma) and the correct concept tag.
-
-An analysis of the distribution of the data provided was deemed necessary to ensure it's correct usage.
 
 \subsection{Zipf's law}
 
@@ -81,12 +83,21 @@ The most frequent concept is "movie.name" by a wide margin, which means this plu
 \centering
   \includegraphics[width=.9\linewidth]{Images/concepts}
   \caption{Concept distribution}
-\label{fig:zipf}
+\label{fig:concepts}
 \end{figure}
+
+\section{Tools used}
+
+To train the language models used in every solution except the baseline, OpenGRM \cite{opengrm} was used. It provides an implementation of various smoothing methods and supports any n-gram order during training.
+Every parameter has been tweaked to find the best score for each proposed solution.
+
+In addition, OpenFST \cite{openfst} was necessary to create the Weighted Finite State Transducers used in all the solutions.
+
+The final tool is mostly written in Python, with Bash scripts that automate the steps required to do a full concept tagging of a test corpus.
 
 \section{Baseline solution}
 The case of a single transducer from word to concept will be taken in consideration as the baseline for all the proposed solutions.
-This doesn't take into consideration the structure of the phrase so it is expected to be very inaccurate. 
+In addition, no concept model was learned to improve performance in this case.
 
 \begin{verbatim}
 accuracy:  67.32%
@@ -102,7 +113,7 @@ The resulting F1-Score is very low as expected.
 The simplest and most direct method is obtained by simply composing the transducer from the previous step with the concept model trained on the training data.
 To do this the training data was converted from word-per-row to a concept sentence-per-row format. These sentences have been used to train a wide array of language models, by changing the order of the n-grams and the smoothing method.
 
-It can be observed that using a language model trained on bigrams achieves better performance than one trained on trigrams, which can be explained by looking at the training and test sets.
+It can be observed that using a language model trained on 2-grams achieves better performance than one trained on 3-grams.
 % TODO need to check this A few concept tags only appear as bigrams in the training corpus, while they appear only as trigrams in the test one.
 
 \begin{verbatim}
@@ -125,11 +136,18 @@ recall:  74.34%
 FB1:  76.37
 \end{verbatim}
 
+\begin{figure}[h]
+\centering
+  \includegraphics[width=.9\linewidth]{Images/f1score}
+  \caption{F1 Score related to smoothing method and order}
+\label{fig:zipf}
+\end{figure}
+
 \section{Solution using extra features}
 
-The next experiment was to try and include the extra features included in the dataset to improve the F1-Score.
+The next experiment was to try and include the extra features provided by the dataset to improve the F1 Score.
 At a first glance the chaining of multiple transducers, each passing from one feature to the next, seemed like a good idea.
-Because of this 3 transducers were built and composed: word-to-lemma, lemma-to-part of speech, part of speech-to-concept tag.
+Because of this 3 transducers were built and composed: word to lemma, lemma to part of speech, part of speech to concept tag.
 By composing the result with the concept model it is shown to be even worse than the baseline:
 
 \begin{verbatim}
@@ -144,7 +162,7 @@ FB1:  10.03
 
 An explanation can be found by considering that this method is reducing the input space of the final transducer from the size of the vocabulary to just 38 pos-tags.
 
-Because of this, a second method which keeps the first transducer, while replacing the second and third with a lemma-to-concept transducer.
+Because of this, a second method which keeps the first transducer, while replacing the second and third with a lemma-to-concept transducer was developed.
 The second transducer takes into consideration the pos-tags in the calculation of the weights.
 
 \begin{verbatim}
@@ -177,7 +195,7 @@ FB1:  61.28
 \section{Using frequency cut-off}
 
 Frequency cut-off can be applied to all the previous solutions, but it does nothing to improve the performance.
-In fact the resulting concept tagger achieves slightly lower scores when used with a cut-off of 1 (removing words that appear only 1 time in the training corpus):
+In fact the \textit{no extra features} concept tagger achieves slightly lower scores when used with a cut-off of 1 (removing words that appear only 1 time in the training corpus):
 \begin{verbatim}
 Smoothing method: witten_bell
 Order: 2-grams
@@ -188,13 +206,13 @@ recall:  70.30%
 FB1:  73.93
 \end{verbatim}
 
-F1 Score of 73.93, almost 2 points lower than the same solution used without cut-off.
+Almost 2 points lower than the same solution used without cut-off.
 The cut-off does remove a lot of the words that are written incorrectly such as "accumalate" and specific movie related terms such as "Dory", which may be desirable when dealing with larger amounts of data.
 
 \section{Pre-processing the training set}
 
-Having the "O" Concept tag assigned to most of the words in the training corpus meant that the concept model would learn that the O tag is very likely in any part of the sentence.
-To try and solve this problem, a pre-processing of the training set is done by replacing every \verb|O| tag into a \verb|O-<word> tag|, effectively increasing the total number of concept tags by the number of words.
+Having the \verb|O| Concept tag assigned to most of the words in the training corpus meant that the concept model would learn that the \verb|O| tag is very likely in any part of the sentence.
+To try and solve this problem, a pre-processing of the training set is done by replacing every \verb|O| tag into a \verb|O-<word>| tag, effectively increasing the total number of concept tags by the number of words.
 By doing so, the concept model yields more information regarding the other tags, which are lower in number, and it is possible to achieve a significant improvement on the F1-Score. The following scores have been obtained by using the \textit{no extra features} solution described precedently with the pre-processed training corpus:
 
 \begin{verbatim}
@@ -221,7 +239,7 @@ recall:  80.29%
 FB1:  79.31
 \end{verbatim}
 
-The best possible score is obtained by exaggerating on the order of the n-grams at learning time of the concept model(and thus increasing the model's complexity):
+The best possible score is obtained by increasing the order of the n-grams at learning time of the concept model(and thus increasing the model's complexity):
 
 \begin{verbatim}
 Smoothing method: kneser_ney
@@ -233,20 +251,17 @@ recall:  83.13%
 FB1:  82.76
 \end{verbatim}
 
-
 \section{Conclusions}
-The value to be used for the learning parameters depends on the distribution of the data we are using for the learning itself. Just increasing the order of the n-grams used to learn the language model can hurt performance instead of improving it. An example of this is the performance achieved using 2-grams and the witten bell smoothing method, which is higher than the same method used with 3-grams.
+The value to be used for the learning parameters depends on the distribution of the data we are using for the learning itself. Just increasing the order of the n-grams used to learn the language model can hurt performance instead of improving it. An example of this is the performance achieved using 2-grams and the witten bell smoothing method, which is higher than the same method used with 3-grams.x
 
 Extra features don't improve the concept tagger's score as we would need those features to be available at test time to improve performance. Having only the words themselves at test time means that every single extra feature we want to use to guess the concept tag would have to be estimated from the word itself, increasing the possibility of error.
 
 Minimum frequency cut-off seems to degrade performance for every proposed solution, even though it removes words spelled wrong and some words specific to certain movies.
 
-Finally, the biggest improvement to performance was achieved simply by manipulating the training data in a very specific manner. The analysis of the data used for training and testing is essential to reach the desired accuracy.
+Finally, the biggest improvement to performance was achieved simply by manipulating the training data in a very specific manner. The analysis of the data used for training and testing is essential to reach the desired accuracy. A small modification to the dataset allowed an F1 Score of \verb|82,76|, without adding any extra features or transducers.
 
 
 
-
-\cite{P16-1001}
 
 
 

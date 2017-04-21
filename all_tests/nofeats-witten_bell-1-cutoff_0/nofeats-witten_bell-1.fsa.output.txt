@@ -761,7 +761,7 @@ what	O	O
 date	O	O
 did	O	O
 the	B-movie.name	O
-amazing	I-movie.name	I-movie.name
+amazing	I-movie.name	B-movie.name
 spiderman	I-movie.name	I-movie.name
 show	O	O
 for	O	O
@@ -1302,7 +1302,7 @@ avatar	B-movie.name	B-movie.name
 	
 genre	O	O
 for	O	O
-bad	B-movie.name	O
+bad	B-movie.name	I-character.name
 teacher	I-movie.name	I-character.name
 	
 can	O	O
@@ -1371,7 +1371,7 @@ out	O	O
 what	O	O
 language	O	O
 the	B-movie.name	O
-father	I-movie.name	B-movie.name
+father	I-movie.name	I-movie.name
 of	I-movie.name	O
 my	I-movie.name	O
 children	I-movie.name	I-rating.name
@@ -1467,7 +1467,7 @@ spanish	B-movie.language	B-movie.language
 	
 was	O	O
 bill	B-actor.name	B-person.name
-paxton	I-actor.name	I-person.name
+paxton	I-actor.name	I-actor.name
 in	O	O
 the	O	O
 movie	O	O
@@ -1652,8 +1652,8 @@ produced	O	O
 	
 what	O	O
 has	O	O
-charlie	B-actor.name	B-person.name
-sheen	I-actor.name	I-actor.name
+charlie	B-actor.name	B-actor.name
+sheen	I-actor.name	I-person.name
 starred	O	O
 in	O	O
 	
@@ -2133,7 +2133,7 @@ will	B-actor.name	B-person.name
 smith	I-actor.name	I-actor.name
 movies	O	O
 	
-cars	B-movie.name	B-movie.subject
+cars	B-movie.name	I-movie.subject
 movie	O	O
 	
 what	O	O
@@ -2868,7 +2868,7 @@ starred	O	O
 in	O	O
 movies	O	O
 other	O	O
-than	O	O
+than	O	I-movie.gross_revenue
 twilight	B-movie.name	B-movie.name
 	
 show	O	O
@@ -3047,7 +3047,7 @@ the	O	O
 movies	O	O
 brad	B-actor.name	B-actor.name
 pitt	I-actor.name	I-actor.name
-had	O	I-character.name
+had	O	O
 been	O	O
 in	O	O
 	
@@ -3307,7 +3307,7 @@ freeman	I-producer.name	I-producer.name
 what	O	O
 movies	O	O
 has	O	O
-meryl	B-actor.name	B-actor.name
+meryl	B-actor.name	B-person.name
 streep	I-actor.name	I-actor.name
 starred	O	O
 in	O	O
@@ -4059,14 +4059,14 @@ et	B-movie.name	B-movie.name
 	
 who	O	O
 produces	O	O
-cars	B-movie.name	B-movie.subject
+cars	B-movie.name	I-movie.subject
 	
 can	O	O
 you	O	O
 find	O	O
 who	O	O
 produced	O	O
-cars	B-movie.name	B-movie.subject
+cars	B-movie.name	I-movie.subject
 	
 production	O	O
 company	O	O
@@ -4545,7 +4545,7 @@ in	O	O
 the	O	O
 tv	O	O
 show	O	O
-one	B-movie.name	B-movie.name
+one	B-movie.name	O
 life	I-movie.name	B-movie.name
 to	I-movie.name	O
 live	I-movie.name	I-movie.name
@@ -4606,7 +4606,7 @@ guy	O	O
 who	O	O
 was	O	O
 the	O	O
-father	B-character.name	B-movie.name
+father	B-character.name	I-movie.name
 and	I-character.name	O
 a	I-character.name	O
 lawyer	I-character.name	O
@@ -4896,7 +4896,7 @@ will	O	B-person.name
 the	O	O
 movie	O	O
 omg	B-movie.name	B-movie.name
-oh	I-movie.name	I-movie.name
+oh	I-movie.name	B-movie.release_date
 my	I-movie.name	O
 god	I-movie.name	I-movie.name
 be	O	O
@@ -4941,7 +4941,7 @@ released	O	O
 when	O	O
 will	O	B-person.name
 twilight	B-movie.name	B-movie.name
-breaking	I-movie.name	I-movie.name
+breaking	I-movie.name	B-movie.name
 dawn	I-movie.name	I-movie.name
 part	I-movie.name	O
 2	I-movie.name	I-movie.name
@@ -4962,7 +4962,7 @@ abbey	I-movie.name	I-movie.name
 who	O	O
 directed	O	O
 good	B-movie.name	O
-bad	I-movie.name	O
+bad	I-movie.name	I-character.name
 and	I-movie.name	O
 ugly	I-movie.name	I-movie.name
 	
@@ -5049,7 +5049,7 @@ any	O	O
 documentaries	B-movie.genre	B-movie.genre
 on	O	O
 classic	B-movie.subject	B-movie.subject
-cars	I-movie.subject	B-movie.subject
+cars	I-movie.subject	I-movie.subject
 	
 show	O	O
 all	O	O
@@ -5378,7 +5378,7 @@ movies	O	O
 in	O	O
 german	B-movie.language	B-movie.language
 before	O	O
-2000	B-movie.release_date	I-movie.release_date
+2000	B-movie.release_date	B-movie.release_date
 	
 give	O	O
 me	O	O
@@ -5512,7 +5512,7 @@ show	O	O
 me	O	O
 nc	B-rating.name	B-rating.name
 minus	I-rating.name	O
-seventeen	I-rating.name	B-rating.name
+seventeen	I-rating.name	I-rating.name
 rated	O	O
 movies	O	O
 	
@@ -5757,14 +5757,14 @@ find	O	O
 movies	O	O
 about	O	O
 preschool	B-movie.subject	B-movie.subject
-boys	I-movie.subject	I-movie.name
+boys	I-movie.subject	I-movie.subject
 	
 look	O	O
 for	O	O
 movies	O	O
 about	O	O
 preschool	B-movie.subject	B-movie.subject
-boys	I-movie.subject	I-movie.name
+boys	I-movie.subject	I-movie.subject
 	
 what	O	O
 films	O	O
@@ -5804,7 +5804,7 @@ look	O	O
 for	O	O
 movies	O	O
 about	O	O
-school	B-movie.subject	I-movie.name
+school	B-movie.subject	O
 	
 tell	O	O
 me	O	O
@@ -6548,7 +6548,7 @@ box	O	O
 office	O	O
 in	O	O
 the	O	O
-weekend	O	O
+weekend	O	B-movie.name
 of	O	O
 september	O	B-movie.release_date
 twenty	O	B-movie.release_date
@@ -6687,7 +6687,7 @@ take	O	O
 to	O	O
 make	O	O
 twenty	B-movie.gross_revenue	B-movie.release_date
-one	I-movie.gross_revenue	B-movie.name
+one	I-movie.gross_revenue	O
 point	I-movie.gross_revenue	I-movie.gross_revenue
 two	I-movie.gross_revenue	O
 for	O	O
@@ -6767,7 +6767,7 @@ your	O	O
 job	O	O
 	
 twenty	B-movie.gross_revenue	B-movie.release_date
-one	I-movie.gross_revenue	B-movie.name
+one	I-movie.gross_revenue	O
 point	I-movie.gross_revenue	I-movie.gross_revenue
 two	I-movie.gross_revenue	O
 was	O	O
@@ -6952,7 +6952,7 @@ rating	O	O
 mean	O	O
 	
 twenty	B-movie.gross_revenue	B-movie.release_date
-one	I-movie.gross_revenue	B-movie.name
+one	I-movie.gross_revenue	O
 point	I-movie.gross_revenue	I-movie.gross_revenue
 two	I-movie.gross_revenue	O
 is	O	O
@@ -7068,14 +7068,14 @@ armstrong	B-person.name	B-movie.subject
 siddeley	I-person.name	O
 	
 classic	O	B-movie.subject
-cars	O	B-movie.subject
+cars	O	I-movie.subject
 	
 i	O	O
 want	O	O
 to	O	O
 learn	O	O
 about	O	O
-flowers	O	I-movie.name
+flowers	O	O
 	
 out	O	O
 camping	O	B-movie.name
@@ -7108,7 +7108,7 @@ million	O	I-movie.gross_revenue
 what	O	O
 	
 twenty	O	B-movie.release_date
-one	O	B-movie.name
+one	O	O
 point	O	I-movie.gross_revenue
 two	O	O
 million	O	I-movie.gross_revenue
@@ -7379,7 +7379,7 @@ what	O	O
 movie	O	O
 titles	O	O
 starring	O	O
-meryl	B-actor.name	B-actor.name
+meryl	B-actor.name	B-person.name
 streep	I-actor.name	I-actor.name
 earned	O	O
 oscar	B-award.ceremony	B-award.ceremony
@@ -7453,7 +7453,7 @@ directed	O	O
 by	O	O
 actor	O	O
 number	O	B-character.name
-one	O	B-movie.name
+one	O	O
 	
 list	O	O
 of	O	O
@@ -7509,7 +7509,7 @@ thousands	I-movie.release_date	O
 	
 show	O	O
 last	B-movie.release_date	O
-years	I-movie.release_date	O
+years	I-movie.release_date	I-movie.release_date
 films	O	O
 by	O	O
 7	B-producer.name	B-producer.name
@@ -7578,7 +7578,7 @@ what	O	O
 movie	O	O
 performance	O	O
 did	O	O
-meryl	B-actor.name	B-actor.name
+meryl	B-actor.name	B-person.name
 streep	I-actor.name	I-actor.name
 win	O	O
 her	O	O
@@ -7748,7 +7748,7 @@ all	O	O
 dawn	B-movie.name	I-movie.name
 of	I-movie.name	O
 the	I-movie.name	O
-dead	I-movie.name	O
+dead	I-movie.name	I-movie.name
 movies	O	O
 	
 all	O	O
@@ -7994,7 +7994,7 @@ story	I-movie.name	I-movie.name
 rating	O	O
 for	O	O
 twilight	B-movie.name	B-movie.name
-breaking	I-movie.name	I-movie.name
+breaking	I-movie.name	B-movie.name
 dawn	I-movie.name	I-movie.name
 	
 what	O	O
